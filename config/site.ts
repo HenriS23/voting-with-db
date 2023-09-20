@@ -9,9 +9,16 @@ export const siteConfig = {
       title: "Home",
       href: "/",
     },
+    {
+      title: "Vote",
+      href: "/vote",
+    },
+    {
+      title: "Add Person",
+      href: "/add",
+    }
   ],
   links: {
-    twitter: "https://twitter.com/shadcn",
     github: "https://github.com/shadcn/ui",
     docs: "https://ui.shadcn.com",
   },
