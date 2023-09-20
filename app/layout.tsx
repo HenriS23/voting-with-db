@@ -1,3 +1,6 @@
+'use client'
+
+import { QueryClient, QueryClientProvider, useQuery } from 'react-query';
 import "@/styles/globals.css"
 import { Metadata } from "next"
 
@@ -8,30 +11,34 @@ import { SiteHeader } from "@/components/site-header"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
 import { ThemeProvider } from "@/components/theme-provider"
 
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
-}
+// export const metadata: Metadata = {
+//   title: {
+//     default: siteConfig.name,
+//     template: `%s - ${siteConfig.name}`,
+//   },
+//   description: siteConfig.description,
+//   themeColor: [
+//     { media: "(prefers-color-scheme: light)", color: "white" },
+//     { media: "(prefers-color-scheme: dark)", color: "black" },
+//   ],
+//   icons: {
+//     icon: "/favicon.ico",
+//     shortcut: "/favicon-16x16.png",
+//     apple: "/apple-touch-icon.png",
+//   },
+// }
 
 interface RootLayoutProps {
   children: React.ReactNode
 }
 
 export default function RootLayout({ children }: RootLayoutProps) {
+
+  const queryClient = new QueryClient();
+
   return (
     <>
+    <QueryClientProvider client={queryClient}>
       <html lang="en" suppressHydrationWarning>
         <head />
         <body
@@ -49,6 +56,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           </ThemeProvider>
         </body>
       </html>
+      </QueryClientProvider>
     </>
   )
 }

@@ -23,6 +23,8 @@ import {
     FormLabel,
     FormMessage,
   } from "@/components/ui/form"
+import ApiClient from "@/app/ApiClient";
+import { useMutation, useQueryClient } from "react-query";
 
 const FormSchema = z.object({
     email: z.string(),
@@ -38,16 +40,35 @@ export function AddPersonForm() {
         isVotable: false,
       },
     })
-   
-    function onSubmit(data: z.infer<typeof FormSchema>) {
+
+  const queryClient = useQueryClient()
+
+  const apiClient = new ApiClient()
+
+  const createPersonMutation = useMutation(apiClient.createPerson.bind(apiClient), {
+    // Invalidate the 'persons' query key to refetch data in the people list
+    onSuccess: () => {
+      queryClient.invalidateQueries('persons');
+    },
+  });
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+
+    createPersonMutation.mutate(data, {
+      onSuccess: () => {
+
+        // alert("amugos")
+
       toast({
-        title: "You submitted the following values:",
-        description: (
-          <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-            <code className="text-white">{JSON.stringify(data, null, 2)}</code>
-          </pre>
-        ),
+        title: "Person created! 🎉",
+        // description: (
+        //   <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+        //     <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        //   </pre>
+        // ),
       })
+        }
+      });
     }
    
     return (
