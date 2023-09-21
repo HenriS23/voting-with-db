@@ -20,12 +20,12 @@ api.add_middleware(
 
 # create local runtime-storage
 person_list = [
-    {
-        "isVotable": False,
-        "firstName": "Linus",
-        "lastName": "Shcicke",
-        "email": "max.muster"
-    }
+    # {
+    #     "isVotable": True,
+    #     "firstName": "Karl",
+    #     "lastName": "Karlson",
+    #     "email": "karl.karlson@company.com"
+    # }
 ]
 vote_list = []
 

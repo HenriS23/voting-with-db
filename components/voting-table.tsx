@@ -6,6 +6,10 @@ import Link from "next/link"
 import { siteConfig } from "@/config/site"
 import { Button, buttonVariants } from "@/components/ui/button"
 
+import ApiClient from "../ApiClient"
+import { useMutation, useQueryClient, useQuery } from "react-query";
+
+import { Person } from "@/models/person";
 
 import {
     Table,
@@ -15,26 +19,40 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-  } from "@/components/ui/table"
+} from "@/components/ui/table"
 
 import {
-Dialog,
-DialogContent,
-DialogDescription,
-DialogFooter,
-DialogHeader,
-DialogTitle,
-DialogTrigger,
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
 } from "@/components/ui/dialog"
-  
-
 
 export function VotingTable() {
+    const queryClient = useQueryClient()
+    const apiClient = new ApiClient();
+
+    const { isLoading: isLoadingPeople, isError, data: people, error: peopleErr } = useQuery('persons', apiClient.getPeople.bind(apiClient));
+    const { isLoading: isLoadingVotes, data: votes, error: votesErr } = useQuery('votes', apiClient.getVotes.bind(apiClient));
+
+    // Filter out people where isVotable is false
+    const votablePeople = people?.filter(person => person.isVotable);
 
     const [open, setOpen] = useState(false);
+    const [selectedPerson, setSelectedPerson] = useState<Person | null>(null); 
 
-    const handleRowClick = () => {
-        // Handle the click event here, e.g., navigate to a different page or perform an action.
+    const voteForPersonMutation = useMutation(apiClient.voteForPerson.bind(apiClient), {
+        // Invalidate the 'vote' query key
+        onSuccess: () => {
+            queryClient.invalidateQueries('vote');
+        },
+    });
+
+    const handleRowClick = (person: Person) => {
+        setSelectedPerson(person);
         setOpen(true);
         console.log('Table row clicked!');
     };
@@ -43,63 +61,71 @@ export function VotingTable() {
         setOpen(false);
     };
 
+    const voteFor = (selectedPerson: Person) => {
+        voteForPersonMutation.mutate(selectedPerson, {
+            onSuccess: () => { 
+            }
+          });
+        closeDialog();
+    };
+
     return (
-       // {/* Conditionally render the modal */}
-    //   {isModalOpen && (
-    //     <Modal onClose={handleCloseModal}>
-    //       {/* Modal content */}
-    //       <h2>Modal Title</h2>
-    //       <p>Modal content goes here.</p>
-    //       <button onClick={handleCloseModal}>Close Modal</button>
-    //     </Modal>
-    //   )}
-            <>
+        
+        <>
             <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger asChild>
-            
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-[425px]">
-            <DialogHeader>
-                <DialogTitle>Vote for </DialogTitle>
-                <DialogDescription>
-                    Do you want to vote for ?
-                </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                    
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                    
-                </div>
-            </div>
-            <DialogFooter>
-                <Button variant="secondary" onClick={closeDialog}>Cancel</Button>
-                <Button type="submit">Yes</Button>
-            </DialogFooter>
-        </DialogContent>
-    </Dialog>
+                <DialogTrigger asChild>
+                
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Vote for {selectedPerson?.firstName} {selectedPerson?.lastName}</DialogTitle>
+                        <DialogDescription>
+                            Do you want to vote for {selectedPerson?.firstName} {selectedPerson?.lastName}?
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="secondary" onClick={closeDialog}>Cancel</Button>
+                        <Button type="submit" onClick={() => selectedPerson && voteFor(selectedPerson)}>Yes</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-    <Table>
-            <TableCaption>Only people you can vote for appear here.</TableCaption>
-            <TableHeader>
-                <TableRow>
-
-                    <TableHead>First Name</TableHead>
-                    <TableHead>Last Name</TableHead>
-                    <TableHead className="w-[40px] text-center">Vote</TableHead>
-                </TableRow>
-            </TableHeader>
-            <TableBody>
-                <TableRow onClick={handleRowClick}>
-
-                    <TableCell>Karl</TableCell>
-                    <TableCell>Karlson</TableCell>
-                    <TableCell className="text-center"></TableCell>
-                </TableRow>
-            </TableBody>
-        </Table>
+            <Table>
+                <TableCaption>Only people you can vote for appear here.</TableCaption>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>First Name</TableHead>
+                        <TableHead>Last Name</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {isLoadingPeople ? 
+                        <TableRow>
+                        <TableCell>loading ...</TableCell><TableCell></TableCell>
+                        </TableRow> : null}
+                    {(votablePeople && votablePeople?.length < 1) && 
+                        <TableRow>
+                        <TableCell>No people found.</TableCell><TableCell></TableCell>
+                        </TableRow>}
+                    {votablePeople && votablePeople.map(person => {
+                    return (
+                        <TableRow key={person.email} onClick={() => handleRowClick(person)}>
+                            <TableCell>{person.firstName}</TableCell>
+                            <TableCell>{person.lastName}</TableCell>
+                        </TableRow>
+                    )
+                    })} 
+                </TableBody>
+            </Table>
         </>
-        // <Button onClick={handleRowClick}>hi</Button>
+        
     )
 }
