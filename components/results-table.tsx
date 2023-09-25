@@ -28,8 +28,10 @@ export function ResultsTable() {
     const { isLoading: isLoadingVotes, isError, data: votes, error: votesErr } = useQuery('votes', apiClient.getVotes.bind(apiClient));
     
     // Filter out people where isVotable is false
-    const votablePeople = votes?.filter(vote => vote.person.isVotable);
-    const totalVoteCount = (votablePeople ?? []).reduce((total, vote) => {
+    const peopleWithVotes = votes?.filter(vote => vote.person.isVotable && vote.Stimmzahl > 0)
+        .sort((a, b) => b.Stimmzahl - a.Stimmzahl);
+
+    const totalVoteCount = (peopleWithVotes ?? []).reduce((total, vote) => {
         return total + vote.Stimmzahl;
     }, 0);
 
@@ -47,19 +49,19 @@ export function ResultsTable() {
         <TableBody>
             {isLoadingVotes ? 
                 <TableRow>
-                <TableCell>loading ...</TableCell><TableCell></TableCell>
+                <TableCell colSpan={4}>loading ...</TableCell>
                 </TableRow> : null}
-            {(votablePeople && votablePeople?.length < 1) && 
+            {(peopleWithVotes && peopleWithVotes?.length < 1) && 
                 <TableRow>
-                <TableCell>No people found.</TableCell><TableCell></TableCell>
+                <TableCell colSpan={4}>No people found.</TableCell>
                 </TableRow>}
-            {votablePeople && votablePeople.map(vote => {
+            {peopleWithVotes && peopleWithVotes.map(vote => {
         
 
                 return (
                     <TableRow key={vote.person.email}>
                         <TableCell className="font-medium">{vote.Stimmzahl}</TableCell>
-                        <TableCell>{vote.Stimmzahl !== 0 ? `${(vote.Stimmzahl / totalVoteCount * 100).toFixed(1)}%` : 'N/A'}</TableCell>
+                        <TableCell>{`${(vote.Stimmzahl / totalVoteCount * 100).toFixed(1)}%`}</TableCell>
                         <TableCell>{vote.person.firstName}</TableCell>
                         <TableCell>{vote.person.lastName}</TableCell>
                     </TableRow>

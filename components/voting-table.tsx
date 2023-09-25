@@ -5,6 +5,9 @@ import { useState } from "react"
 import Link from "next/link"
 import { siteConfig } from "@/config/site"
 import { Button, buttonVariants } from "@/components/ui/button"
+import { toast } from "@/components/ui/use-toast"
+import { ToastAction } from "@/components/ui/toast"
+import { useToast } from "@/components/ui/use-toast"
 
 import ApiClient from "../ApiClient"
 import { useMutation, useQueryClient, useQuery } from "react-query";
@@ -38,6 +41,8 @@ export function VotingTable() {
     const { isLoading: isLoadingPeople, isError, data: people, error: peopleErr } = useQuery('persons', apiClient.getPeople.bind(apiClient));
     const { isLoading: isLoadingVotes, data: votes, error: votesErr } = useQuery('votes', apiClient.getVotes.bind(apiClient));
 
+    const { toast } = useToast()
+
     // Filter out people where isVotable is false
     const votablePeople = people?.filter(person => person.isVotable);
 
@@ -48,6 +53,10 @@ export function VotingTable() {
         // Invalidate the 'vote' query key
         onSuccess: () => {
             queryClient.invalidateQueries('vote');
+            toast({
+                title: "Successfully Voted",
+                description: `${selectedPerson?.firstName} ${selectedPerson?.lastName}`,
+              });
         },
     });
 
@@ -109,11 +118,12 @@ export function VotingTable() {
                 <TableBody>
                     {isLoadingPeople ? 
                         <TableRow>
-                        <TableCell>loading ...</TableCell><TableCell></TableCell>
+                        <TableCell colSpan={2}>loading ...</TableCell>
                         </TableRow> : null}
+                        
                     {(votablePeople && votablePeople?.length < 1) && 
                         <TableRow>
-                        <TableCell>No people found.</TableCell><TableCell></TableCell>
+                        <TableCell colSpan={2}>No people found.</TableCell>
                         </TableRow>}
                     {votablePeople && votablePeople.map(person => {
                     return (

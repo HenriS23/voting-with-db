@@ -31,9 +31,9 @@ import {
 
 
 const FormSchema = z.object({
-    email: z.string(),
-    firstName: z.string(),
-    lastName: z.string(),
+    email: z.string().min(1, "Please enter an email address."),
+    firstName: z.string().min(1, "Please enter a first name."),
+    lastName: z.string().min(1, "Please enter a last name"),
     isVotable: z.boolean().default(false),
 })
 
@@ -107,7 +107,7 @@ export function AddPersonForm() {
             <FormItem>
               <FormLabel>Company Email</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="karl.karlson@client.com" {...field} />
+                <Input className="" type="email" placeholder="karl.karlson@client.com" {...field} />
               </FormControl>
               <FormDescription>
                 Please only use your company email address.
