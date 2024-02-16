@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build && uvicorn api:api --reload",
+    "build": "next build && pip install fastapi && pip install uvicorn && cd api && uvicorn api:api --reload",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "next lint --fix",
