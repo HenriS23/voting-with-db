@@ -6,8 +6,13 @@ import { PrismaClient } from "@prisma/client"
 const prisma = new PrismaClient()
 
 export async function getPersons(): Promise<Person[]> {
-    const persons = await prisma.person.findMany()
-    return persons ?? []
+    try {
+        const persons = await prisma.person.findMany()
+        return persons ?? []
+    } catch (error) {
+        console.error("Error getting persons:", error)
+        throw error
+    }
 }
 
 export async function voteForPerson(id: string): Promise<Person> {
