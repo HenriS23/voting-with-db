@@ -1,6 +1,8 @@
 export interface Person {
+    id: string;
     email: string;
-    firstName: string;
-    lastName: string;
-    isVotable: boolean;
+    firstname: string;
+    lastname: string;
+    votable: boolean;
+    votes: number;
   }

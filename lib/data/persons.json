@@ -1,0 +1,18 @@
+[
+    {
+      "id": "1",
+      "email": "Test1@mail.com",
+      "firstname": "first",
+      "lastname": "sdfsd",
+      "votable": "true",
+      "votes": "1"
+    },
+    {
+        "id": "1",
+        "email": "test2@mail.com",
+        "firstname": "second",
+        "lastname": "sdfsd",
+        "votable": "true",
+        "votes": "2"
+    }
+  ]
